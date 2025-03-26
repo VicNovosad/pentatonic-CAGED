@@ -1,9 +1,14 @@
 :root {
   --color-pattern-1: #d1c4e9; /* Purple */
+  --color-pale-pattern-1: #e8e1f4; /* Pale Purple */
   --color-pattern-2: #ffccbc; /* Orange */
+  --color-pale-pattern-2: #fde5dd; /* Pale Orange */
   --color-pattern-3: #b3e5fc; /* Blue */
+  --color-pale-pattern-3: #dbf2fe; /* Pale Blue */
   --color-pattern-4: #ffcdd2; /* Pink */
+  --color-pale-pattern-4: #fde5dd; /* Pale Pink */
   --color-pattern-5: #c8e6c9; /* Green */
+  --color-pale-pattern-5: #e4f2e3; /*Pale Green*/
   --shape-a: #f44336;
   --shape-g: #4caf50;
   --shape-e: #9c27b0;
@@ -113,7 +118,7 @@ h1 {
   border: 1px solid var(--border-gray);
 }
 
-.fretboard-grid div {
+.fretboard-grid > div {
   border: 1px solid var(--border-gray);
   display: flex;
   align-items: center;
@@ -132,44 +137,59 @@ h1 {
   background: white;
   border-radius: 50%;
   border: 1px solid black;
+  z-index: 1;
 }
 
 /* Pattern colors with default opacity */
-.pattern-1 { background-color: var(--color-pattern-1); opacity: var(--opacity-default); }
-.pattern-2 { background-color: var(--color-pattern-2); opacity: var(--opacity-default); }
-.pattern-3 { background-color: var(--color-pattern-3); opacity: var(--opacity-default); }
-.pattern-4 { background-color: var(--color-pattern-4); opacity: var(--opacity-default); }
-.pattern-5 { background-color: var(--color-pattern-5); opacity: var(--opacity-default); }
+.pattern-1 { background-color: var(--color-pale-pattern-1); }
+.pattern-2 { background-color: var(--color-pale-pattern-2); }
+.pattern-3 { background-color: var(--color-pale-pattern-3); }
+.pattern-4 { background-color: var(--color-pale-pattern-4); }
+.pattern-5 { background-color: var(--color-pale-pattern-5); }
 
-/* Gradient classes for overlapping cells */
-.gradient-4-to-5 {
-  background: linear-gradient(to right, var(--color-pattern-4) 0%, var(--color-pattern-4) 50%, var(--color-pattern-5) 50%, var(--color-pattern-5) 100%);
-}
-.gradient-5-to-1 {
-  background: linear-gradient(to right, var(--color-pattern-5) 0%, var(--color-pattern-5) 50%, var(--color-pattern-1) 50%, var(--color-pattern-1) 100%);
-}
-.gradient-1-to-2 {
-  background: linear-gradient(to right, var(--color-pattern-1) 0%, var(--color-pattern-1) 50%, var(--color-pattern-2) 50%, var(--color-pattern-2) 100%);
-}
-.gradient-2-to-3 {
-  background: linear-gradient(to right, var(--color-pattern-2) 0%, var(--color-pattern-2) 50%, var(--color-pattern-3) 50%, var(--color-pattern-3) 100%);
-}
-.gradient-3-to-4 {
-  background: linear-gradient(to right, var(--color-pattern-3) 0%, var(--color-pattern-3) 50%, var(--color-pattern-4) 50%, var(--color-pattern-4) 100%);
-}
+.active-pattern .pattern-1.current-pattern,
+.active-pattern.pattern-1{ background-color: var(--color-pattern-1); }
+.active-pattern .pattern-2.current-pattern,
+.active-pattern.pattern-2{ background-color: var(--color-pattern-2); }
+.active-pattern .pattern-3.current-pattern,
+.active-pattern.pattern-3{ background-color: var(--color-pattern-3); }
+.active-pattern .pattern-4.current-pattern,
+.active-pattern.pattern-4{ background-color: var(--color-pattern-4); }
+.active-pattern .pattern-5.current-pattern,
+.active-pattern.pattern-5{ background-color: var(--color-pattern-5); }
 
-/* Apply default opacity to gradients */
-.gradient-4-to-5,
-.gradient-5-to-1,
-.gradient-1-to-2,
-.gradient-2-to-3,
-.gradient-3-to-4 {
-  opacity: var(--opacity-default);
+.previous-1,
+.previous-2,
+.previous-3,
+.previous-4,
+.previous-5{
+  position: relative;
 }
 
 /* Active pattern (full opacity) */
 .active-pattern {
   opacity: var(--opacity-active);
+  position: relative;
+}
+
+.fretboard-grid .pattern-color{
+  opacity: .5;
+}
+
+.fretboard-grid .active-pattern .pattern-color{
+  opacity: 1;
+}
+
+.active-pattern .note-circle{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.active-pattern .pattern-color{
+  width: 50%;
+  height: 100%;
 }
 
 /* Highlight starting position */

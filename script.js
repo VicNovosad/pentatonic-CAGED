@@ -113,16 +113,34 @@ function applyNotes(cells, isBaseOnTop) {
   }
 }
 
+// Service function to get the previous or next pattern in a circular order
+function getAdjacentPattern(patternOrder, currentPattern, direction) {
+  const index = patternOrder.indexOf(currentPattern);
+
+  if (index === -1) {
+    throw new Error(`Pattern ${currentPattern} not found in patternOrder.`);
+  }
+
+  if (direction === 'previous') {
+    return patternOrder[(index - 1 + patternOrder.length) % patternOrder.length];
+  } else if (direction === 'next') {
+    return patternOrder[(index + 1) % patternOrder.length];
+  } else {
+    throw new Error(`Invalid direction: ${direction}. Use 'previous' or 'next'.`);
+  }
+}
+
 // Service function to apply pattern styles (colors and gradients)
 function applyPatternStyles(cells, cellPatterns, selectedPattern) {
   for (let string = 0; string < 6; string++) {
-    let currentPattern = null; // Track the current pattern for empty cells
+    let currentPattern = 3; // Track the current pattern for empty cells
     for (let fret = 0; fret < 23; fret++) {
       const cellIndex = string * 23 + fret;
       const patternSet = cellPatterns[string][fret];
+      // console.log(patternSet);
       const patternArray = Array.from(patternSet);
 
-      if (patternArray.length === 0) {
+      if (patternArray.length === 0) { //empty cell
         // Empty cell: apply the current pattern's class if it exists
         if (currentPattern !== null) {
           cells[cellIndex].classList.add(`pattern-${currentPattern}`);
@@ -133,28 +151,40 @@ function applyPatternStyles(cells, cellPatterns, selectedPattern) {
         continue;
       }
 
-      if (patternArray.length === 1) {
+      if (patternArray.length === 1) { // Single pattern
         // Single pattern
         const patternNum = patternArray[0];
+        const previousPattern = getAdjacentPattern(patternOrder, patternNum, 'previous');
         currentPattern = patternNum; // Update the current pattern
         cells[cellIndex].classList.add(`pattern-${patternNum}`);
+
+        // cells[cellIndex].classList.add(`previous-${previousPattern}`);
+        cells[cellIndex].insertAdjacentHTML('beforeend', `
+          <div class="pattern-color pattern-${previousPattern}"></div>
+          <div class="pattern-color current-pattern pattern-${patternNum}"></div>
+        `);
         if (patternNum === selectedPattern) {
           cells[cellIndex].classList.add('active-pattern');
         }
-      } else {
-        // Overlapping patterns: determine previous and next patterns
-        const sortedPatterns = patternArray.sort((a, b) => {
-          const indexA = patternOrder.indexOf(a);
-          const indexB = patternOrder.indexOf(b);
-          return indexA - indexB;
-        });
-        const prevPattern = sortedPatterns[0];
-        const nextPattern = sortedPatterns[sortedPatterns.length - 1];
+        
+      } else { // Overlapping patterns
+        const prevPattern = patternArray[0];
+        const nextPattern = patternArray[1];
 
         // Update current pattern to the next pattern (for cells after this overlap)
         currentPattern = nextPattern;
         // Apply gradient class
-        cells[cellIndex].classList.add(`gradient-${prevPattern}-to-${nextPattern}`);
+        // cells[cellIndex].classList.add(`gradient-${prevPattern}-to-${nextPattern}`);
+        // if (prevPattern === selectedPattern || nextPattern === selectedPattern) {
+        //   cells[cellIndex].classList.add('active-pattern');
+        // }
+        // Use innerHTML to add both divs at once
+        cells[cellIndex].insertAdjacentHTML('beforeend', `
+          <div class="pattern-color current-pattern pattern-${prevPattern}"></div>
+          <div class="pattern-color pattern-${nextPattern}"></div>
+        `);
+
+        // Highlight active pattern if it matches prevPattern or nextPattern
         if (prevPattern === selectedPattern || nextPattern === selectedPattern) {
           cells[cellIndex].classList.add('active-pattern');
         }
@@ -165,7 +195,7 @@ function applyPatternStyles(cells, cellPatterns, selectedPattern) {
 
 function updateFretboard() {
   const key = document.getElementById('key').value;
-  const isBaseOnTop = document.getElementById('string-order').checked;
+  const isBaseOnTop = true; // Always act as if the checkbox was turned on
   const { pattern: selectedPattern, fret, string } = keyToPattern[key];
 
   // Update pattern labels
@@ -184,8 +214,9 @@ function updateFretboard() {
   // Build cellPatterns and apply notes
   const cellPatterns = buildCellPatterns(isBaseOnTop);
   applyNotes(cells, isBaseOnTop);
-
+  
   // Apply pattern styles
+  // console.log(cellPatterns);
   applyPatternStyles(cells, cellPatterns, selectedPattern);
 
   // Highlight starting position
