@@ -104,6 +104,7 @@ h1 {
   font-weight: bold;
 }
 
+/* Style for notes wrapped in span */
 .note-circle {
   display: flex;
   align-items: center;
@@ -124,6 +125,37 @@ h1 {
 
 /* Selected pattern at full opacity */
 .selected-pattern {
+  opacity: 1;
+}
+
+/* Gradient classes for overlapping cells */
+.gradient-4-to-5 {
+  background: linear-gradient(to right, #ffcdd2 0%, #ffcdd2 50%, #c8e6c9 50%, #c8e6c9 100%);
+}
+.gradient-5-to-1 {
+  background: linear-gradient(to right, #c8e6c9 0%, #c8e6c9 50%, #d1c4e9 50%, #d1c4e9 100%);
+}
+.gradient-1-to-2 {
+  background: linear-gradient(to right, #d1c4e9 0%, #d1c4e9 50%, #ffccbc 50%, #ffccbc 100%);
+}
+.gradient-2-to-3 {
+  background: linear-gradient(to right, #ffccbc 0%, #ffccbc 50%, #b3e5fc 50%, #b3e5fc 100%);
+}
+.gradient-3-to-4 {
+  background: linear-gradient(to right, #b3e5fc 0%, #b3e5fc 50%, #ffcdd2 50%, #ffcdd2 100%);
+}
+
+/* Apply opacity to gradients */
+.gradient-4-to-5, .gradient-5-to-1, .gradient-1-to-2, .gradient-2-to-3, .gradient-3-to-4 {
+  opacity: 0.5;
+}
+
+/* Ensure selected pattern gradient is fully opaque */
+.selected-pattern.gradient-4-to-5,
+.selected-pattern.gradient-5-to-1,
+.selected-pattern.gradient-1-to-2,
+.selected-pattern.gradient-2-to-3,
+.selected-pattern.gradient-3-to-4 {
   opacity: 1;
 }
 

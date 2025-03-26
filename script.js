@@ -58,6 +58,9 @@ const patterns = {
   ]
 };
 
+// Define pattern order for determining previous and next patterns
+const patternOrder = [4, 5, 1, 2, 3];
+
 function generateFretLabels(containerSelector, totalFrets) {
   const fretLabelsContainer = document.querySelector(containerSelector);
 
@@ -91,7 +94,6 @@ function updatePatternLabels() {
   patternLabels.innerHTML = '';
 
   // Create labels for each pattern
-  const patternOrder = [4, 5, 1, 2, 3]; // Order as in the image (left to right)
   for (let i = 0; i < 23; i++) {
     const labelDiv = document.createElement('div');
     labelDiv.className = 'pattern-label';
@@ -148,21 +150,52 @@ function updateFretboard() {
     cell.textContent = '';
   }
 
-  // Apply all patterns with transparency
+  // Track which patterns occupy each cell
+  const cellPatterns = Array(6).fill().map(() => Array(23).fill().map(() => new Set()));
+
+  // Apply all patterns and track occupancy
   for (let patternNum = 1; patternNum <= 5; patternNum++) {
     const patternNotes = patterns[patternNum];
     for (let note of patternNotes) {
-      // Adjust string index based on order
       const originalString = note.string;
-      const adjustedString = isBaseOnTop
-        ? 5 - originalString
-        : originalString;
+      const adjustedString = isBaseOnTop ? 5 - originalString : originalString;
       const cellIndex = adjustedString * 23 + note.fret;
-      // Wrap the note in a span with note-circle class
+      cellPatterns[adjustedString][note.fret].add(patternNum);
       cells[cellIndex].innerHTML = `<span class="note-circle">${note.note}</span>`;
-      cells[cellIndex].classList.add(`pattern-${patternNum}`);
-      if (patternNum === selectedPattern) {
-        cells[cellIndex].classList.add('selected-pattern');
+    }
+  }
+
+  // Apply pattern classes and gradients
+  for (let string = 0; string < 6; string++) {
+    for (let fret = 0; fret < 23; fret++) {
+      const cellIndex = string * 23 + fret;
+      const patternSet = cellPatterns[string][fret];
+      const patternArray = Array.from(patternSet);
+
+      if (patternArray.length === 0) continue;
+
+      if (patternArray.length === 1) {
+        // Single pattern
+        const patternNum = patternArray[0];
+        cells[cellIndex].classList.add(`pattern-${patternNum}`);
+        if (patternNum === selectedPattern) {
+          cells[cellIndex].classList.add('selected-pattern');
+        }
+      } else {
+        // Overlapping patterns: determine previous and next patterns
+        const sortedPatterns = patternArray.sort((a, b) => {
+          const indexA = patternOrder.indexOf(a);
+          const indexB = patternOrder.indexOf(b);
+          return indexA - indexB;
+        });
+        const prevPattern = sortedPatterns[0];
+        const nextPattern = sortedPatterns[sortedPatterns.length - 1];
+
+        // Apply gradient class
+        cells[cellIndex].classList.add(`gradient-${prevPattern}-to-${nextPattern}`);
+        if (prevPattern === selectedPattern || nextPattern === selectedPattern) {
+          cells[cellIndex].classList.add('selected-pattern');
+        }
       }
     }
   }
