@@ -56,7 +56,7 @@ function updatePatternLabels() {
   }
 }
 
-// lbl: Service function to update string labels
+// Service function to update string labels
 function updateStringLabels(isBaseOnTop) {
   const stringLabels = isBaseOnTop
     ? ['E', 'A', 'D', 'G', 'B', 'E']
@@ -68,7 +68,7 @@ function updateStringLabels(isBaseOnTop) {
   return stringLabels;
 }
 
-// lbl: Service function to create string map
+// Service function to create string map
 function createStringMap(stringLabels) {
   const stringMap = {};
   stringLabels.forEach((label, index) => {
@@ -77,7 +77,7 @@ function createStringMap(stringLabels) {
   return stringMap;
 }
 
-// lbl: Service function to reset all cells
+// Service function to reset all cells
 function resetCells(cells) {
   for (let cell of cells) {
     cell.className = '';
@@ -85,7 +85,7 @@ function resetCells(cells) {
   }
 }
 
-// lbl: Service function to build cellPatterns array
+// Service function to build cellPatterns array
 function buildCellPatterns(isBaseOnTop) {
   const cellPatterns = Array(6).fill().map(() => Array(23).fill().map(() => new Set()));
   for (let patternNum = 1; patternNum <= 5; patternNum++) {
@@ -100,7 +100,7 @@ function buildCellPatterns(isBaseOnTop) {
   return cellPatterns;
 }
 
-// lbl: Service function to apply notes to cells
+// Service function to apply notes to cells
 function applyNotes(cells, isBaseOnTop) {
   for (let patternNum = 1; patternNum <= 5; patternNum++) {
     const patternNotes = patterns[patternNum];
@@ -113,7 +113,7 @@ function applyNotes(cells, isBaseOnTop) {
   }
 }
 
-// lbl: Service function to apply pattern styles (colors and gradients)
+// Service function to apply pattern styles (colors and gradients)
 function applyPatternStyles(cells, cellPatterns, selectedPattern) {
   for (let string = 0; string < 6; string++) {
     let currentPattern = null; // Track the current pattern for empty cells
@@ -127,7 +127,7 @@ function applyPatternStyles(cells, cellPatterns, selectedPattern) {
         if (currentPattern !== null) {
           cells[cellIndex].classList.add(`pattern-${currentPattern}`);
           if (currentPattern === selectedPattern) {
-            cells[cellIndex].classList.add('selected-pattern');
+            cells[cellIndex].classList.add('active-pattern');
           }
         }
         continue;
@@ -139,7 +139,7 @@ function applyPatternStyles(cells, cellPatterns, selectedPattern) {
         currentPattern = patternNum; // Update the current pattern
         cells[cellIndex].classList.add(`pattern-${patternNum}`);
         if (patternNum === selectedPattern) {
-          cells[cellIndex].classList.add('selected-pattern');
+          cells[cellIndex].classList.add('active-pattern');
         }
       } else {
         // Overlapping patterns: determine previous and next patterns
@@ -156,7 +156,7 @@ function applyPatternStyles(cells, cellPatterns, selectedPattern) {
         // Apply gradient class
         cells[cellIndex].classList.add(`gradient-${prevPattern}-to-${nextPattern}`);
         if (prevPattern === selectedPattern || nextPattern === selectedPattern) {
-          cells[cellIndex].classList.add('selected-pattern');
+          cells[cellIndex].classList.add('active-pattern');
         }
       }
     }

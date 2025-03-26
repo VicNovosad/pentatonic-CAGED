@@ -12,6 +12,8 @@
   --text-secondary: #555;
   --border-gray: #ccc;
   --highlight-red: red;
+  --opacity-default: 0.5; /* Default opacity for non-active patterns */
+  --opacity-active: 1;    /* Opacity for active patterns */
 }
 
 body {
@@ -132,17 +134,12 @@ h1 {
   border: 1px solid black;
 }
 
-/* Pattern colors with default transparency */
-.pattern-1 { background-color: var(--color-pattern-1); opacity: 0.5; }
-.pattern-2 { background-color: var(--color-pattern-2); opacity: 0.5; }
-.pattern-3 { background-color: var(--color-pattern-3); opacity: 0.5; }
-.pattern-4 { background-color: var(--color-pattern-4); opacity: 0.5; }
-.pattern-5 { background-color: var(--color-pattern-5); opacity: 0.5; }
-
-/* Selected pattern at full opacity */
-.selected-pattern {
-  opacity: 1;
-}
+/* Pattern colors with default opacity */
+.pattern-1 { background-color: var(--color-pattern-1); opacity: var(--opacity-default); }
+.pattern-2 { background-color: var(--color-pattern-2); opacity: var(--opacity-default); }
+.pattern-3 { background-color: var(--color-pattern-3); opacity: var(--opacity-default); }
+.pattern-4 { background-color: var(--color-pattern-4); opacity: var(--opacity-default); }
+.pattern-5 { background-color: var(--color-pattern-5); opacity: var(--opacity-default); }
 
 /* Gradient classes for overlapping cells */
 .gradient-4-to-5 {
@@ -161,18 +158,18 @@ h1 {
   background: linear-gradient(to right, var(--color-pattern-3) 0%, var(--color-pattern-3) 50%, var(--color-pattern-4) 50%, var(--color-pattern-4) 100%);
 }
 
-/* Apply opacity to gradients */
-.gradient-4-to-5, .gradient-5-to-1, .gradient-1-to-2, .gradient-2-to-3, .gradient-3-to-4 {
-  opacity: 0.5;
+/* Apply default opacity to gradients */
+.gradient-4-to-5,
+.gradient-5-to-1,
+.gradient-1-to-2,
+.gradient-2-to-3,
+.gradient-3-to-4 {
+  opacity: var(--opacity-default);
 }
 
-/* Ensure selected pattern gradient is fully opaque */
-.selected-pattern.gradient-4-to-5,
-.selected-pattern.gradient-5-to-1,
-.selected-pattern.gradient-1-to-2,
-.selected-pattern.gradient-2-to-3,
-.selected-pattern.gradient-3-to-4 {
-  opacity: 1;
+/* Active pattern (full opacity) */
+.active-pattern {
+  opacity: var(--opacity-active);
 }
 
 /* Highlight starting position */
