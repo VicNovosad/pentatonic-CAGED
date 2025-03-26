@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A-Minor Pentatonic CAGED System</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>CAGED System Shapes of A-Minor Pentatonic</h1>
+  <div class="key-selector">
+    <label for="key">Select Key: </label>
+    <select id="key" onchange="updateFretboard()">
+      <option value="A">A</option>
+      <option value="G">G</option>
+      <option value="E">E</option>
+      <option value="D">D</option>
+      <option value="C">C</option>
+    </select>
+  </div>
+  <div class="toggle">
+    <label for="string-order">Base Strings on Top: </label>
+    <input type="checkbox" id="string-order" checked onchange="updateFretboard()">
+  </div>
+  <div class="fretboard">
+    <div class="pattern-labels" id="pattern-labels"></div>
+    <div class="strings" id="strings">
+      <div>E</div><div>B</div><div>G</div><div>D</div><div>A</div><div>E</div>
+    </div>
+    <div class="frets">
+      <div class="fret-labels">
+        <div>Open</div>
+      </div>
+      <div class="fretboard-grid" id="fretboard-grid"></div>
+    </div>
+  </div>
+  <div class="info" id="info"></div>
+  <script src="script.js"></script>
+</body>
+</html>
