@@ -56,15 +56,8 @@ function updatePatternLabels() {
   }
 }
 
-function updateFretboard() {
-  const key = document.getElementById('key').value;
-  const isBaseOnTop = document.getElementById('string-order').checked;
-  const { pattern: selectedPattern, fret, string } = keyToPattern[key];
-
-  // Update pattern labels
-  updatePatternLabels();
-
-  // Update string labels
+// lbl: Service function to update string labels
+function updateStringLabels(isBaseOnTop) {
   const stringLabels = isBaseOnTop
     ? ['E', 'A', 'D', 'G', 'B', 'E']
     : ['E', 'B', 'G', 'D', 'A', 'E'];
@@ -72,26 +65,29 @@ function updateFretboard() {
   for (let i = 0; i < stringDivs.length; i++) {
     stringDivs[i].textContent = stringLabels[i];
   }
+  return stringLabels;
+}
 
-  // Map string labels to indices based on order
+// lbl: Service function to create string map
+function createStringMap(stringLabels) {
   const stringMap = {};
   stringLabels.forEach((label, index) => {
     stringMap[label] = index;
   });
+  return stringMap;
+}
 
-  const grid = document.getElementById('fretboard-grid');
-  const cells = grid.children;
-
-  // Reset all cells
+// lbl: Service function to reset all cells
+function resetCells(cells) {
   for (let cell of cells) {
     cell.className = '';
     cell.textContent = '';
   }
+}
 
-  // Track which patterns occupy each cell
+// lbl: Service function to build cellPatterns array
+function buildCellPatterns(isBaseOnTop) {
   const cellPatterns = Array(6).fill().map(() => Array(23).fill().map(() => new Set()));
-
-  // Apply all patterns and track occupancy
   for (let patternNum = 1; patternNum <= 5; patternNum++) {
     const patternNotes = patterns[patternNum];
     for (let note of patternNotes) {
@@ -99,22 +95,48 @@ function updateFretboard() {
       const adjustedString = isBaseOnTop ? 5 - originalString : originalString;
       const cellIndex = adjustedString * 23 + note.fret;
       cellPatterns[adjustedString][note.fret].add(patternNum);
+    }
+  }
+  return cellPatterns;
+}
+
+// lbl: Service function to apply notes to cells
+function applyNotes(cells, isBaseOnTop) {
+  for (let patternNum = 1; patternNum <= 5; patternNum++) {
+    const patternNotes = patterns[patternNum];
+    for (let note of patternNotes) {
+      const originalString = note.string;
+      const adjustedString = isBaseOnTop ? 5 - originalString : originalString;
+      const cellIndex = adjustedString * 23 + note.fret;
       cells[cellIndex].innerHTML = `<span class="note-circle">${note.note}</span>`;
     }
   }
+}
 
-  // Apply pattern classes and gradients
+// lbl: Service function to apply pattern styles (colors and gradients)
+function applyPatternStyles(cells, cellPatterns, selectedPattern) {
   for (let string = 0; string < 6; string++) {
+    let currentPattern = null; // Track the current pattern for empty cells
     for (let fret = 0; fret < 23; fret++) {
       const cellIndex = string * 23 + fret;
       const patternSet = cellPatterns[string][fret];
       const patternArray = Array.from(patternSet);
 
-      if (patternArray.length === 0) continue;
+      if (patternArray.length === 0) {
+        // Empty cell: apply the current pattern's class if it exists
+        if (currentPattern !== null) {
+          cells[cellIndex].classList.add(`pattern-${currentPattern}`);
+          if (currentPattern === selectedPattern) {
+            cells[cellIndex].classList.add('selected-pattern');
+          }
+        }
+        continue;
+      }
 
       if (patternArray.length === 1) {
         // Single pattern
         const patternNum = patternArray[0];
+        currentPattern = patternNum; // Update the current pattern
         cells[cellIndex].classList.add(`pattern-${patternNum}`);
         if (patternNum === selectedPattern) {
           cells[cellIndex].classList.add('selected-pattern');
@@ -129,6 +151,8 @@ function updateFretboard() {
         const prevPattern = sortedPatterns[0];
         const nextPattern = sortedPatterns[sortedPatterns.length - 1];
 
+        // Update current pattern to the next pattern (for cells after this overlap)
+        currentPattern = nextPattern;
         // Apply gradient class
         cells[cellIndex].classList.add(`gradient-${prevPattern}-to-${nextPattern}`);
         if (prevPattern === selectedPattern || nextPattern === selectedPattern) {
@@ -137,6 +161,32 @@ function updateFretboard() {
       }
     }
   }
+}
+
+function updateFretboard() {
+  const key = document.getElementById('key').value;
+  const isBaseOnTop = document.getElementById('string-order').checked;
+  const { pattern: selectedPattern, fret, string } = keyToPattern[key];
+
+  // Update pattern labels
+  updatePatternLabels();
+
+  // Update string labels and create string map
+  const stringLabels = updateStringLabels(isBaseOnTop);
+  const stringMap = createStringMap(stringLabels);
+
+  const grid = document.getElementById('fretboard-grid');
+  const cells = grid.children;
+
+  // Reset all cells
+  resetCells(cells);
+
+  // Build cellPatterns and apply notes
+  const cellPatterns = buildCellPatterns(isBaseOnTop);
+  applyNotes(cells, isBaseOnTop);
+
+  // Apply pattern styles
+  applyPatternStyles(cells, cellPatterns, selectedPattern);
 
   // Highlight starting position
   const stringIndex = stringMap[string];
