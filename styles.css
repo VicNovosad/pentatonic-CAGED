@@ -104,6 +104,17 @@ h1 {
   font-weight: bold;
 }
 
+.note-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  border: 1px solid black;
+}
+
 /* Pattern colors with default transparency */
 .pattern-1 { background-color: #d1c4e9; opacity: 0.5; } /* Purple */
 .pattern-2 { background-color: #ffccbc; opacity: 0.5; } /* Orange */

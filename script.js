@@ -158,7 +158,8 @@ function updateFretboard() {
         ? 5 - originalString
         : originalString;
       const cellIndex = adjustedString * 23 + note.fret;
-      cells[cellIndex].textContent = note.note;
+      // Wrap the note in a span with note-circle class
+      cells[cellIndex].innerHTML = `<span class="note-circle">${note.note}</span>`;
       cells[cellIndex].classList.add(`pattern-${patternNum}`);
       if (patternNum === selectedPattern) {
         cells[cellIndex].classList.add('selected-pattern');
