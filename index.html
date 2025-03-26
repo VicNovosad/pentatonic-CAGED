@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>A-Minor Pentatonic CAGED System</title>
+  <title>Pentatonic Fretboard</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>CAGED System Shapes of A-Minor Pentatonic</h1>
+  <h1>Pentatonic Fretboard</h1>
   <div class="key-selector">
     <label for="key">Select Key: </label>
     <select id="key" onchange="updateFretboard()">
@@ -19,8 +19,8 @@
     </select>
   </div>
   <div class="toggle">
-    <label for="string-order">Base Strings on Top: </label>
-    <input type="checkbox" id="string-order" checked onchange="updateFretboard()">
+    <label for="string-order">Bass on Top: </label>
+    <input type="checkbox" id="string-order" onchange="updateFretboard()">
   </div>
   <div class="fretboard">
     <div class="pattern-labels" id="pattern-labels"></div>
@@ -28,13 +28,13 @@
       <div>E</div><div>B</div><div>G</div><div>D</div><div>A</div><div>E</div>
     </div>
     <div class="frets">
-      <div class="fret-labels">
-        <div>Open</div>
-      </div>
+      <div class="fret-labels"></div>
       <div class="fretboard-grid" id="fretboard-grid"></div>
     </div>
   </div>
   <div class="info" id="info"></div>
+  <!-- lbl: Added data.js script -->
+  <script src="data.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

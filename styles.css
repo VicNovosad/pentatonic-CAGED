@@ -1,3 +1,19 @@
+:root {
+  --color-pattern-1: #d1c4e9; /* Purple */
+  --color-pattern-2: #ffccbc; /* Orange */
+  --color-pattern-3: #b3e5fc; /* Blue */
+  --color-pattern-4: #ffcdd2; /* Pink */
+  --color-pattern-5: #c8e6c9; /* Green */
+  --shape-a: #f44336;
+  --shape-g: #4caf50;
+  --shape-e: #9c27b0;
+  --shape-d: #ff9800;
+  --shape-c: #2196f3;
+  --text-secondary: #555;
+  --border-gray: #ccc;
+  --highlight-red: red;
+}
+
 body {
   font-family: Arial, sans-serif;
   text-align: center;
@@ -47,14 +63,14 @@ h1 {
 
 .pattern-label .pattern {
   font-size: 12px;
-  color: #555;
+  color: var(--text-secondary);
 }
 
-.pattern-label .shape.A { color: #f44336; }
-.pattern-label .shape.G { color: #4caf50; }
-.pattern-label .shape.E { color: #9c27b0; }
-.pattern-label .shape.D { color: #ff9800; }
-.pattern-label .shape.C { color: #2196f3; }
+.pattern-label .shape.A { color: var(--shape-a); }
+.pattern-label .shape.G { color: var(--shape-g); }
+.pattern-label .shape.E { color: var(--shape-e); }
+.pattern-label .shape.D { color: var(--shape-d); }
+.pattern-label .shape.C { color: var(--shape-c); }
 
 .strings {
   display: flex;
@@ -92,11 +108,11 @@ h1 {
   display: grid;
   grid-template-columns: repeat(23, 40px);
   grid-template-rows: repeat(6, 40px);
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-gray);
 }
 
 .fretboard-grid div {
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-gray);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -117,11 +133,11 @@ h1 {
 }
 
 /* Pattern colors with default transparency */
-.pattern-1 { background-color: #d1c4e9; opacity: 0.5; } /* Purple */
-.pattern-2 { background-color: #ffccbc; opacity: 0.5; } /* Orange */
-.pattern-3 { background-color: #b3e5fc; opacity: 0.5; } /* Blue */
-.pattern-4 { background-color: #ffcdd2; opacity: 0.5; } /* Pink */
-.pattern-5 { background-color: #c8e6c9; opacity: 0.5; } /* Green */
+.pattern-1 { background-color: var(--color-pattern-1); opacity: 0.5; }
+.pattern-2 { background-color: var(--color-pattern-2); opacity: 0.5; }
+.pattern-3 { background-color: var(--color-pattern-3); opacity: 0.5; }
+.pattern-4 { background-color: var(--color-pattern-4); opacity: 0.5; }
+.pattern-5 { background-color: var(--color-pattern-5); opacity: 0.5; }
 
 /* Selected pattern at full opacity */
 .selected-pattern {
@@ -130,19 +146,19 @@ h1 {
 
 /* Gradient classes for overlapping cells */
 .gradient-4-to-5 {
-  background: linear-gradient(to right, #ffcdd2 0%, #ffcdd2 50%, #c8e6c9 50%, #c8e6c9 100%);
+  background: linear-gradient(to right, var(--color-pattern-4) 0%, var(--color-pattern-4) 50%, var(--color-pattern-5) 50%, var(--color-pattern-5) 100%);
 }
 .gradient-5-to-1 {
-  background: linear-gradient(to right, #c8e6c9 0%, #c8e6c9 50%, #d1c4e9 50%, #d1c4e9 100%);
+  background: linear-gradient(to right, var(--color-pattern-5) 0%, var(--color-pattern-5) 50%, var(--color-pattern-1) 50%, var(--color-pattern-1) 100%);
 }
 .gradient-1-to-2 {
-  background: linear-gradient(to right, #d1c4e9 0%, #d1c4e9 50%, #ffccbc 50%, #ffccbc 100%);
+  background: linear-gradient(to right, var(--color-pattern-1) 0%, var(--color-pattern-1) 50%, var(--color-pattern-2) 50%, var(--color-pattern-2) 100%);
 }
 .gradient-2-to-3 {
-  background: linear-gradient(to right, #ffccbc 0%, #ffccbc 50%, #b3e5fc 50%, #b3e5fc 100%);
+  background: linear-gradient(to right, var(--color-pattern-2) 0%, var(--color-pattern-2) 50%, var(--color-pattern-3) 50%, var(--color-pattern-3) 100%);
 }
 .gradient-3-to-4 {
-  background: linear-gradient(to right, #b3e5fc 0%, #b3e5fc 50%, #ffcdd2 50%, #ffcdd2 100%);
+  background: linear-gradient(to right, var(--color-pattern-3) 0%, var(--color-pattern-3) 50%, var(--color-pattern-4) 50%, var(--color-pattern-4) 100%);
 }
 
 /* Apply opacity to gradients */
@@ -160,7 +176,7 @@ h1 {
 }
 
 /* Highlight starting position */
-.start { border: 3px solid red; }
+.start { border: 3px solid var(--highlight-red); }
 
 .info {
   margin-top: 20px;
