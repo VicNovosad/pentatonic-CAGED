@@ -1,74 +1,154 @@
-// lbl: Removed data and imported from data.js
-function generateFretLabels(containerSelector, totalFrets) {
-  const fretLabelsContainer = document.querySelector(containerSelector);
+const canvas = document.getElementById('fretboard');
+const ctx = canvas.getContext('2d');
+const fretWidth = 40;
+const stringHeight = 40;
+const totalFrets = 23;
+const totalStrings = 6;
 
-  fretLabelsContainer.innerHTML = '';
-  const openLabel = document.createElement("div");
-  openLabel.textContent = "Open";
-  fretLabelsContainer.appendChild(openLabel);
+// Pattern colors to match the image
+const patternColors = {
+  1: 'rgba(153, 102, 204, 0.5)', // Purple (E shape)
+  2: 'rgba(255, 153, 51, 0.5)',  // Orange (D shape)
+  3: 'rgba(51, 153, 255, 0.5)',  // Blue (C shape)
+  4: 'rgba(255, 102, 102, 0.5)', // Pink (A shape)
+  5: 'rgba(102, 204, 102, 0.5)'  // Green (G shape)
+};
+const activePatternColors = {
+  1: 'rgba(153, 102, 204, 1)',
+  2: 'rgba(255, 153, 51, 1)',
+  3: 'rgba(51, 153, 255, 1)',
+  4: 'rgba(255, 102, 102, 1)',
+  5: 'rgba(102, 204, 102, 1)'
+};
 
-  for (let i = 1; i <= totalFrets; i++) {
-    const fretLabel = document.createElement("div");
-    fretLabel.textContent = i;
-    fretLabelsContainer.appendChild(fretLabel);
+function drawFretboard() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw frets
+  ctx.strokeStyle = '#ccc';
+  ctx.lineWidth = 1;
+  for (let fret = 0; fret <= totalFrets; fret++) {
+    const x = fret * fretWidth;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, totalStrings * stringHeight);
+    ctx.stroke();
+  }
+
+  // Draw strings
+  for (let string = 0; string <= totalStrings; string++) {
+    const y = string * stringHeight;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(totalFrets * fretWidth, y);
+    ctx.stroke();
+  }
+
+  // Draw string labels
+  ctx.fillStyle = '#000';
+  ctx.font = 'bold 14px Arial';
+  const stringLabels = ['E', 'A', 'D', 'G', 'B', 'E'];
+  for (let string = 0; string < totalStrings; string++) {
+    ctx.fillText(stringLabels[string], -2, (string + 0.5) * stringHeight + 5);
+  }
+
+  // Draw fret labels
+  ctx.font = '12px Arial';
+  for (let fret = 0; fret < totalFrets; fret++) {
+    ctx.fillText(fret === 0 ? 'Open' : fret, fret * fretWidth + 10, -5);
   }
 }
 
-function initializeFretboard() {
-  const grid = document.getElementById('fretboard-grid');
-  for (let string = 0; string < 6; string++) {
-    for (let fret = 0; fret < 23; fret++) {
-      const cell = document.createElement('div');
-      cell.dataset.string = string;
-      cell.dataset.fret = fret;
-      grid.appendChild(cell);
+function applyPatterns(selectedPattern) {
+  const patternBoundaries = {};
+  const isBaseOnTop = true;
+
+  // Identify pattern boundaries and note positions
+  for (let patternNum = 1; patternNum <= 5; patternNum++) {
+    const patternNotes = patterns[patternNum];
+    const stringMap = {};
+
+    for (let note of patternNotes) {
+      const adjustedString = isBaseOnTop ? 5 - note.string : note.string;
+      if (!stringMap[adjustedString]) {
+        stringMap[adjustedString] = [];
+      }
+      stringMap[adjustedString].push(note.fret);
+    }
+
+    for (let string in stringMap) {
+      const frets = stringMap[string].sort((a, b) => a - b);
+      if (!patternBoundaries[patternNum]) {
+        patternBoundaries[patternNum] = {};
+      }
+      patternBoundaries[patternNum][string] = {
+        first: frets[0],
+        last: frets[frets.length - 1],
+        frets: frets
+      };
     }
   }
-  updateFretboard();
-}
 
-function updatePatternLabels() {
-  const patternLabels = document.getElementById('pattern-labels');
-  patternLabels.innerHTML = '';
+  // Draw pattern labels above fretboard
+  ctx.font = 'bold 14px Arial';
+  ctx.textAlign = 'center';
+  for (let patternNum = 1; patternNum <= 5; patternNum++) {
+    const startFret = patternToShape[patternNum].startFret;
+    const shape = patternToShape[patternNum].shape;
+    const x = startFret * fretWidth + fretWidth / 2;
+    ctx.fillStyle = patternColors[patternNum].replace('0.5', '1'); // Full opacity for text
+    ctx.fillText(`${shape} shape`, x, -40);
+    ctx.fillText(`pattern ${patternNum}`, x, -25);
+  }
 
-  // Create labels for each pattern
-  for (let i = 0; i < 23; i++) {
-    const labelDiv = document.createElement('div');
-    labelDiv.className = 'pattern-label';
+  // Draw pattern rectangles with half-width edges
+  for (let patternNum = 1; patternNum <= 5; patternNum++) {
+    const boundaries = patternBoundaries[patternNum] || {};
+    ctx.fillStyle = patternNum === selectedPattern ? activePatternColors[patternNum] : patternColors[patternNum];
 
-    // Find which pattern starts at this fret
-    let patternNum = null;
-    for (let p of patternOrder) {
-      if (patternToShape[p].startFret === i) {
-        patternNum = p;
-        break;
+    for (let string in boundaries) {
+      const { first, last, frets } = boundaries[string];
+      const y = string * stringHeight;
+      const height = stringHeight;
+
+      if (first === last) {
+        const x = first * fretWidth + fretWidth / 4;
+        const width = fretWidth / 2;
+        ctx.fillRect(x, y, width, height);
+      } else {
+        const xStart = first * fretWidth + fretWidth / 2;
+        const xEnd = last * fretWidth + fretWidth / 2;
+        const width = xEnd - xStart;
+        ctx.fillRect(xStart, y, width, height);
       }
     }
+  }
 
-    if (patternNum) {
-      const shape = patternToShape[patternNum].shape;
-      labelDiv.innerHTML = `
-        <div class="shape ${shape}">${shape}</div>
-        <div class="pattern">pattern ${patternNum}</div>
-      `;
+  // Draw notes
+  for (let patternNum = 1; patternNum <= 5; patternNum++) {
+    const patternNotes = patterns[patternNum];
+    for (let note of patternNotes) {
+      const adjustedString = isBaseOnTop ? 5 - note.string : note.string;
+      const x = note.fret * fretWidth + fretWidth / 2;
+      const y = adjustedString * stringHeight + stringHeight / 2;
+
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(x, y, 10, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 12px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(note.note, x, y);
     }
-    patternLabels.appendChild(labelDiv);
   }
 }
 
-// Service function to update string labels
-function updateStringLabels(isBaseOnTop) {
-  const stringLabels = isBaseOnTop
-    ? ['E', 'A', 'D', 'G', 'B', 'E']
-    : ['E', 'B', 'G', 'D', 'A', 'E'];
-  const stringDivs = document.getElementById('strings').children;
-  for (let i = 0; i < stringDivs.length; i++) {
-    stringDivs[i].textContent = stringLabels[i];
-  }
-  return stringLabels;
-}
-
-// Service function to create string map
 function createStringMap(stringLabels) {
   const stringMap = {};
   stringLabels.forEach((label, index) => {
@@ -77,152 +157,26 @@ function createStringMap(stringLabels) {
   return stringMap;
 }
 
-// Service function to reset all cells
-function resetCells(cells) {
-  for (let cell of cells) {
-    cell.className = '';
-    cell.textContent = '';
-  }
-}
-
-// Service function to build cellPatterns array
-function buildCellPatterns(isBaseOnTop) {
-  const cellPatterns = Array(6).fill().map(() => Array(23).fill().map(() => new Set()));
-  for (let patternNum = 1; patternNum <= 5; patternNum++) {
-    const patternNotes = patterns[patternNum];
-    for (let note of patternNotes) {
-      const originalString = note.string;
-      const adjustedString = isBaseOnTop ? 5 - originalString : originalString;
-      const cellIndex = adjustedString * 23 + note.fret;
-      cellPatterns[adjustedString][note.fret].add(patternNum);
-    }
-  }
-  return cellPatterns;
-}
-
-// Service function to apply notes to cells
-function applyNotes(cells, isBaseOnTop) {
-  for (let patternNum = 1; patternNum <= 5; patternNum++) {
-    const patternNotes = patterns[patternNum];
-    for (let note of patternNotes) {
-      const originalString = note.string;
-      const adjustedString = isBaseOnTop ? 5 - originalString : originalString;
-      const cellIndex = adjustedString * 23 + note.fret;
-      cells[cellIndex].innerHTML = `<span class="note-circle">${note.note}</span>`;
-    }
-  }
-}
-
-// Service function to get the previous or next pattern in a circular order
-function getAdjacentPattern(patternOrder, currentPattern, direction) {
-  const index = patternOrder.indexOf(currentPattern);
-
-  if (index === -1) {
-    throw new Error(`Pattern ${currentPattern} not found in patternOrder.`);
-  }
-
-  if (direction === 'previous') {
-    return patternOrder[(index - 1 + patternOrder.length) % patternOrder.length];
-  } else if (direction === 'next') {
-    return patternOrder[(index + 1) % patternOrder.length];
-  } else {
-    throw new Error(`Invalid direction: ${direction}. Use 'previous' or 'next'.`);
-  }
-}
-
-// Service function to apply pattern styles (colors and gradients)
-function applyPatternStyles(cells, selectedPattern) {
-  const patternBoundaries = {};
-
-  // Step 1: Identify first and last notes per string for each pattern
-  for (let patternNum = 1; patternNum <= 5; patternNum++) {
-    const patternNotes = patterns[patternNum];
-    const stringMap = {};
-
-    // Group notes by adjusted string
-    for (let note of patternNotes) {
-      const adjustedString = 5 - note.string; // Assuming isBaseOnTop = true
-      if (!stringMap[adjustedString]) {
-        stringMap[adjustedString] = [];
-      }
-      stringMap[adjustedString].push(note.fret);
-    }
-
-    // Store boundaries
-    for (let string in stringMap) {
-      const frets = stringMap[string].sort((a, b) => a - b);
-      if (!patternBoundaries[patternNum]) {
-        patternBoundaries[patternNum] = {};
-      }
-      patternBoundaries[patternNum][string] = {
-        first: frets[0],
-        last: frets[frets.length - 1]
-      };
-    }
-  }
-
-  // Step 2: Apply styles based on boundaries
-  for (let patternNum = 1; patternNum <= 5; patternNum++) {
-    const previousPattern = getAdjacentPattern(patternOrder, patternNum, 'previous');
-    const boundaries = patternBoundaries[patternNum] || {};
-
-    for (let string in boundaries) {
-      const { first, last } = boundaries[string];
-      for (let fret = first; fret <= last; fret++) {
-        const cellIndex = string * 23 + fret;
-        const isFirst = fret === first;
-        const isLast = fret === last;
-
-        // Base pattern class for all cells in range
-        cells[cellIndex].classList.add(`pattern-${patternNum}`, 'fretboard-cell');
-        if (patternNum === selectedPattern) {
-          cells[cellIndex].classList.add('active-pattern');
-        }
-
-        // Add pattern-color divs for first and last cells
-        if (isFirst || isLast) {
-          cells[cellIndex].insertAdjacentHTML('beforeend', `
-            <div class="pattern-color pattern-${previousPattern}"></div>
-            <div class="pattern-color current-pattern pattern-${patternNum}"></div>
-          `);
-        }
-      }
-    }
-  }
-}
-
 function updateFretboard() {
   const key = document.getElementById('key').value;
-  const isBaseOnTop = true; // Always act as if the checkbox was turned on
   const { pattern: selectedPattern, fret, string } = keyToPattern[key];
 
-  // Update pattern labels
-  updatePatternLabels();
-
-  // Update string labels and create string map
-  const stringLabels = updateStringLabels(isBaseOnTop);
-  const stringMap = createStringMap(stringLabels);
-
-  const grid = document.getElementById('fretboard-grid');
-  const cells = grid.children;
-
-  // Reset all cells
-  resetCells(cells);
-
-  applyNotes(cells, isBaseOnTop);
-  
-  // Apply pattern styles
-  applyPatternStyles(cells, selectedPattern);
+  drawFretboard();
+  applyPatterns(selectedPattern);
 
   // Highlight starting position
+  const stringMap = createStringMap(['E', 'A', 'D', 'G', 'B', 'E']);
   const stringIndex = stringMap[string];
-  const startCellIndex = stringIndex * 23 + fret;
-  cells[startCellIndex].classList.add('start');
+  const x = fret * fretWidth + fretWidth / 2;
+  const y = stringIndex * stringHeight + stringHeight / 2;
+  ctx.strokeStyle = 'red';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(x, y, 12, 0, 2 * Math.PI);
+  ctx.stroke();
 
-  // Update info
   document.getElementById('info').textContent = 
     `Key: ${key} | Start on Pattern ${selectedPattern} at Fret ${fret} on ${string} string`;
 }
 
-window.onload = initializeFretboard;
-generateFretLabels(".fret-labels", 22);
+window.onload = updateFretboard;
