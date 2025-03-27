@@ -131,62 +131,60 @@ function getAdjacentPattern(patternOrder, currentPattern, direction) {
 }
 
 // Service function to apply pattern styles (colors and gradients)
-function applyPatternStyles(cells, cellPatterns, selectedPattern) {
-  for (let string = 0; string < 6; string++) {
-    let currentPattern = 3; // Track the current pattern for empty cells
-    for (let fret = 0; fret < 23; fret++) {
-      const cellIndex = string * 23 + fret;
-      const patternSet = cellPatterns[string][fret];
-      // console.log(patternSet);
-      const patternArray = Array.from(patternSet);
+function applyPatternStyles(cells, selectedPattern) {
+  const patternBoundaries = {};
 
-      if (patternArray.length === 0) { //empty cell
-        // Empty cell: apply the current pattern's class if it exists
-        if (currentPattern !== null) {
-          cells[cellIndex].classList.add(`pattern-${currentPattern}`);
-          if (currentPattern === selectedPattern) {
-            cells[cellIndex].classList.add('active-pattern');
-          }
-        }
-        continue;
+  // Step 1: Identify first and last notes per string for each pattern
+  for (let patternNum = 1; patternNum <= 5; patternNum++) {
+    const patternNotes = patterns[patternNum];
+    const stringMap = {};
+
+    // Group notes by adjusted string
+    for (let note of patternNotes) {
+      const adjustedString = 5 - note.string; // Assuming isBaseOnTop = true
+      if (!stringMap[adjustedString]) {
+        stringMap[adjustedString] = [];
       }
+      stringMap[adjustedString].push(note.fret);
+    }
 
-      if (patternArray.length === 1) { // Single pattern
-        // Single pattern
-        const patternNum = patternArray[0];
-        const previousPattern = getAdjacentPattern(patternOrder, patternNum, 'previous');
-        currentPattern = patternNum; // Update the current pattern
-        cells[cellIndex].classList.add(`pattern-${patternNum}`);
+    // Store boundaries
+    for (let string in stringMap) {
+      const frets = stringMap[string].sort((a, b) => a - b);
+      if (!patternBoundaries[patternNum]) {
+        patternBoundaries[patternNum] = {};
+      }
+      patternBoundaries[patternNum][string] = {
+        first: frets[0],
+        last: frets[frets.length - 1]
+      };
+    }
+  }
 
-        // cells[cellIndex].classList.add(`previous-${previousPattern}`);
-        cells[cellIndex].insertAdjacentHTML('beforeend', `
-          <div class="pattern-color pattern-${previousPattern}"></div>
-          <div class="pattern-color current-pattern pattern-${patternNum}"></div>
-        `);
+  // Step 2: Apply styles based on boundaries
+  for (let patternNum = 1; patternNum <= 5; patternNum++) {
+    const previousPattern = getAdjacentPattern(patternOrder, patternNum, 'previous');
+    const boundaries = patternBoundaries[patternNum] || {};
+
+    for (let string in boundaries) {
+      const { first, last } = boundaries[string];
+      for (let fret = first; fret <= last; fret++) {
+        const cellIndex = string * 23 + fret;
+        const isFirst = fret === first;
+        const isLast = fret === last;
+
+        // Base pattern class for all cells in range
+        cells[cellIndex].classList.add(`pattern-${patternNum}`, 'fretboard-cell');
         if (patternNum === selectedPattern) {
           cells[cellIndex].classList.add('active-pattern');
         }
-        
-      } else { // Overlapping patterns
-        const prevPattern = patternArray[0];
-        const nextPattern = patternArray[1];
 
-        // Update current pattern to the next pattern (for cells after this overlap)
-        currentPattern = nextPattern;
-        // Apply gradient class
-        // cells[cellIndex].classList.add(`gradient-${prevPattern}-to-${nextPattern}`);
-        // if (prevPattern === selectedPattern || nextPattern === selectedPattern) {
-        //   cells[cellIndex].classList.add('active-pattern');
-        // }
-        // Use innerHTML to add both divs at once
-        cells[cellIndex].insertAdjacentHTML('beforeend', `
-          <div class="pattern-color current-pattern pattern-${prevPattern}"></div>
-          <div class="pattern-color pattern-${nextPattern}"></div>
-        `);
-
-        // Highlight active pattern if it matches prevPattern or nextPattern
-        if (prevPattern === selectedPattern || nextPattern === selectedPattern) {
-          cells[cellIndex].classList.add('active-pattern');
+        // Add pattern-color divs for first and last cells
+        if (isFirst || isLast) {
+          cells[cellIndex].insertAdjacentHTML('beforeend', `
+            <div class="pattern-color pattern-${previousPattern}"></div>
+            <div class="pattern-color current-pattern pattern-${patternNum}"></div>
+          `);
         }
       }
     }
@@ -211,13 +209,10 @@ function updateFretboard() {
   // Reset all cells
   resetCells(cells);
 
-  // Build cellPatterns and apply notes
-  const cellPatterns = buildCellPatterns(isBaseOnTop);
   applyNotes(cells, isBaseOnTop);
   
   // Apply pattern styles
-  // console.log(cellPatterns);
-  applyPatternStyles(cells, cellPatterns, selectedPattern);
+  applyPatternStyles(cells, selectedPattern);
 
   // Highlight starting position
   const stringIndex = stringMap[string];
